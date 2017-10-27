@@ -1,59 +1,63 @@
-var arkjs = require('arkjs');
-var network = require('./network');
-var low = require('lowdb');
-var FileSync = require('lowdb/adapters/FileSync');
+const arkjs = require('arkjs')
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+const Network = require('./network')
 
-var adapter = new FileSync('storage.lowdb');
-var db = low(adapter);
-db.defaults({transactions: []}).
-  write();
+let network = new Network()
 
-function get(req, res, next) {
-  network.getFromNode(`/api/transactions/get?id=${req.params.id}`, function (err, response, body) {
-    if(err) next();
-    else {
-      body = JSON.parse(body);
-      res.send(body);
-      next();
-    }
-  });
-}
-
-function create(req, res, next) {
-  var tx = arkjs.transaction.createTransaction(req.params.recipientId, req.params.amount, null, req.params.passphrase);
-  db.get('transactions').
-    push(tx).
-    write();
-  res.send(tx);
-  next();
-}
-
-function getAll(req, res, next) {
-  // Avar tx = db.get('transactions');
-  next();
-}
-
-function broadcast(req, res, next) {
-  var tx = db.get('transactions').
-    find({id: req.params.id}).
-    value() || req.params;
-  if (!arkjs.crypto.verify(tx)) {
-    res.send({
-      success: false,
-      error: "transaction does not verify",
-      transaction: tx
-    });
-    next();
+class Transaction {
+  constructor () {
+    this.adapter = new FileSync('storage.lowdb')
+    this.db = low(this.adapter)
+    this.db.defaults({ transactions: [] }).write()
   }
-  network.broadcast(tx, function () {
-    res.send({success: true});
-    next();
-  });
+
+  get (req, res, next) {
+    let url = `/api/transactions/get?id=${req.params.id}`
+
+    network.getFromNode(url, (err, response, body) => {
+      if (err) return next()
+      body = JSON.parse(body)
+      res.send(body)
+      return next()
+    })
+  }
+
+  create (req, res, next) {
+    let tx = arkjs.transaction.createTransaction(req.params.recipientId, req.params.amount, null, req.params.passphrase)
+
+    this.db.get('transactions')
+      .push(tx)
+      .write()
+
+    res.send(tx)
+    return next()
+  }
+
+  getAll (req, res, next) {
+    // Avar tx = db.get('transactions');
+    return next()
+  }
+
+  broadcast (req, res, next) {
+    let tx = this.db.get('transactions')
+      .find({id: req.params.id})
+      .value() || req.params
+
+    if (!arkjs.crypto.verify(tx)) {
+      res.send({
+        success: false,
+        error: 'transaction does not verify',
+        transaction: tx
+      })
+      return next()
+    }
+
+    network.broadcast(tx, () => {
+      res.send({ success: true })
+      return next()
+    })
+  }
 }
 
-module.exports = {
-  create,
-  get,
-  broadcast,
-  getAll
-};
+module.exports = Transaction
