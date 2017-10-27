@@ -14,6 +14,7 @@ describe('Transactions', () => {
       chai.request(server).
         get('/mainnet/transactions/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv').
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.success.should.be.equal(true);
           res.body.count.should.be.above(3);
@@ -26,6 +27,7 @@ describe('Transactions', () => {
       chai.request(server).
         get('/devnet/transactions/DGihocTkwDygiFvmg6aG8jThYTic47GzU9').
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.success.should.be.equal(true);
           res.body.count.should.be.above(30);
@@ -37,14 +39,17 @@ describe('Transactions', () => {
   });
 
   describe('/POST transaction', () => {
-    let mainnettx;
+    let mainnettx = {};
     it('it should create tx on mainnet and tx should verify', (done) => {
       chai.request(server).
         post('/mainnet/transaction').
-        send({amount: 100000000,
-recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
-passphrase: "This is a test"}).
+        send({
+          amount: 100000000,
+          recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+          passphrase: "This is a test"
+      }).
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.recipientId.should.equal("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
           mainnettx = res.body;
@@ -58,13 +63,14 @@ passphrase: "This is a test"}).
         post('/mainnet/broadcast').
         send(mainnettx).
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.success.should.be.equal(true);
           done();
         });
     });
 
-    let devnettx;
+    let devnettx = {};
     it('it should create tx on devnet and tx should verify', (done) => {
       chai.request(server).
         post('/devnet/transaction').
@@ -74,6 +80,7 @@ passphrase: "This is a test"}).
           passphrase: "This is a test"
         }).
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.recipientId.should.equal("DGihocTkwDygiFvmg6aG8jThYTic47GzU9");
           devnettx = res.body;
@@ -87,6 +94,7 @@ passphrase: "This is a test"}).
         post('/devnet/broadcast').
         send(devnettx).
         end((err, res) => {
+          if (err) done(err);
           res.should.have.status(200);
           res.body.success.should.be.equal(true);
           done();

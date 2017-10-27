@@ -1,7 +1,8 @@
 module.exports = {
     "env": {
-        es6: true,
-        "node": true
+        "es6": true,
+        "node": true,
+        "mocha": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -33,15 +34,12 @@ module.exports = {
         "computed-property-spacing": "error",
         "consistent-return": "error",
         "consistent-this": "error",
+        "no-console": "off",
         "curly": "off",
         "default-case": "error",
         "dot-location": "error",
         "dot-notation": "error",
-        "eol-last": [
-            "error",
-            "never"
-        ],
-        "eqeqeq": "off",
+        "eqeqeq": "error",
         "for-direction": "error",
         "func-call-spacing": "error",
         "func-name-matching": "error",
