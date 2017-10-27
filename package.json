@@ -4,11 +4,12 @@
   "description": "RPC server acting as lite client for ARK blockchain",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 20000 --exit",
-    "start": "nodemon ./server.js"
-  },
-  "bin": {
-    "ark-rpc": "./server.js"
+    "start": "./node_modules/.bin/nodemon ./server.js",
+    "clean": "rm -rf coverage/",
+    "mocha": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --",
+    "lint": "./node_modules/.bin/standard --env mocha",
+    "test": "npm run lint && npm run mocha; npm run clean",
+    "pre-push": "npm run test"
   },
   "repository": {
     "type": "git",
@@ -38,9 +39,12 @@
     "restify": "^6.2.0"
   },
   "devDependencies": {
-    "nodemon": "^1.12.1",
     "chai": "^3.5.0",
-    "chai-http": "^2.0.1",
-    "mocha": "^4.0.1"
+    "chai-http": "^3.0.0",
+    "husky": "^0.14.3",
+    "istanbul": "^0.4.5",
+    "mocha": "^2.4.5",
+    "nodemon": "^1.12.1",
+    "standard": "^10.0.3"
   }
 }
